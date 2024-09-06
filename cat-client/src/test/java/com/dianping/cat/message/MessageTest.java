@@ -522,16 +522,17 @@ public class MessageTest extends ComponentTestCase {
 				@Override
 				public void run() {
 					ForkedTransaction forked = p.doFork();
-
-					try {
-						Transaction t = Cat.newTransaction("type", "child" + index);
-
-						Cat.logEvent("type", "name");
-						t.success();
-						t.complete();
-						latch.countDown();
-					} finally {
-						forked.close();
+					synchronized (p) {
+						try {
+							Transaction t = Cat.newTransaction("type", "child" + index);
+	
+							Cat.logEvent("type", "name");
+							t.success();
+							t.complete();
+							latch.countDown();
+						} finally {
+							forked.close();
+						}
 					}
 				}
 			}.start();
